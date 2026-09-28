@@ -1,0 +1,56 @@
+name: Code Consistency
+
+on:
+  push:
+    branches:
+      - main
+      - develop
+
+  pull_request:
+    branches:
+      - main
+      - develop
+
+jobs:
+  consistency:
+    name: PHP Consistency Check
+
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        php-version:
+          - "8.2"
+          - "8.3"
+          - "8.4"
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php-version }}
+          extensions: curl, json
+          coverage: none
+
+      - name: Validate Composer
+        run: composer validate --strict
+
+      - name: Install dependencies
+        run: composer install --prefer-dist --no-progress --no-interaction
+
+      - name: Validate autoload
+        run: composer dump-autoload --optimize --strict-psr
+
+      - name: PHP syntax check
+        run: |
+          find src tests -type f -name "*.php" -print0 \
+            | xargs -0 -n1 php -l
+
+      - name: Check class consistency
+        run: composer check:consistency
+
+      - name: Run tests
+        run: composer test
