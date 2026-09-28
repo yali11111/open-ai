@@ -10,18 +10,18 @@ declare(strict_types=1);
  */
 
 $root = dirname(__DIR__);
-$src  = $root . '/src';
+$src = $root . '/src';
 
-$errors   = [];
+$errors = [];
 $warnings = [];
-$classes  = [];
+$classes = [];
 
 /**
  * Recherche récursivement les fichiers PHP.
  */
 function phpFiles(string $directory): array
 {
-    if (!is_dir($directory)) {
+    if (! is_dir($directory)) {
         return [];
     }
 
@@ -52,7 +52,7 @@ function expectedClass(string $file, string $src): ?string
 {
     $relative = str_replace('\\', '/', substr($file, strlen($src) + 1));
 
-    if (!str_ends_with($relative, '.php')) {
+    if (! str_ends_with($relative, '.php')) {
         return null;
     }
 
@@ -75,14 +75,14 @@ function declaredClasses(string $file): array
     $tokens = token_get_all($code);
 
     $namespace = '';
-    $classes   = [];
+    $classes = [];
 
     $count = count($tokens);
 
     for ($i = 0; $i < $count; $i++) {
         $token = $tokens[$i];
 
-        if (!is_array($token)) {
+        if (! is_array($token)) {
             continue;
         }
 
@@ -94,11 +94,13 @@ function declaredClasses(string $file): array
 
                 if (is_array($part) && in_array($part[0], [T_STRING, T_NAME_QUALIFIED])) {
                     $namespace .= $part[1];
+
                     continue;
                 }
 
                 if ($part === '\\') {
                     $namespace .= '\\';
+
                     continue;
                 }
 
@@ -121,7 +123,7 @@ function declaredClasses(string $file): array
                 $j++;
             }
 
-            if (!isset($tokens[$j]) || !is_array($tokens[$j]) || $tokens[$j][0] !== T_STRING) {
+            if (! isset($tokens[$j]) || ! is_array($tokens[$j]) || $tokens[$j][0] !== T_STRING) {
                 continue;
             }
 
@@ -141,7 +143,7 @@ echo "==========================================" . PHP_EOL;
 echo " PHP Project Consistency Check" . PHP_EOL;
 echo "==========================================" . PHP_EOL . PHP_EOL;
 
-if (!is_dir($src)) {
+if (! is_dir($src)) {
     echo "❌ Dossier src/ introuvable." . PHP_EOL;
     exit(1);
 }
@@ -310,7 +312,7 @@ if ($warnings) {
     }
 }
 
-if (!$errors && !$warnings) {
+if (! $errors && ! $warnings) {
     echo PHP_EOL;
     echo "🎉 Projet cohérent !" . PHP_EOL;
 }
